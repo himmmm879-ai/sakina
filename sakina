@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>سَكِينة</title>
+<style>
+:root{--bg:#f6f3ea;--card:#fff;--tx:#1d2b24;--ac:#1f7a5a;--mu:#6b7a72;--bd:#e2ddcc}
+:root[data-theme=dark]{--bg:#121a16;--card:#1b2620;--tx:#e8efe9;--ac:#3ec28f;--mu:#93a39a;--bd:#2c3a32;color-scheme:dark}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]):not([data-theme=dark]){--bg:#121a16;--card:#1b2620;--tx:#e8efe9;--ac:#3ec28f;--mu:#93a39a;--bd:#2c3a32;color-scheme:dark}}
+#themeBtn{position:absolute;top:14px;left:14px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:20px;padding:6px 12px;font-size:14px;cursor:pointer}
+header{position:relative}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,"Segoe UI",Tahoma,sans-serif;padding-bottom:70px}
+header{padding:18px;text-align:center;font-size:22px;font-weight:700;color:var(--ac)}
+main{max-width:640px;margin:auto;padding:0 12px}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--bd);display:flex;overflow-x:auto}
+nav button{flex:1;min-width:64px;padding:10px 4px;border:0;background:none;color:var(--mu);font-size:12px}
+nav button.on{color:var(--ac);font-weight:700}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin:10px 0}
+.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)}
+.row:last-child{border:0}.row.next{color:var(--ac);font-weight:700}
+button.b,select,input,textarea{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:8px 12px}
+button.b{background:var(--ac);color:#fff;border:0;cursor:pointer}
+textarea,input[type=text]{width:100%}
+.big{font-size:40px;text-align:center;font-weight:700;color:var(--ac)}
+.ayah{font-family:"Amiri","Traditional Arabic",serif;font-size:22px;line-height:2.2;text-align:justify}
+.zk{font-size:18px;line-height:2;margin-bottom:6px}
+.cnt{display:inline-block;min-width:60px}
+.tab{display:none}.tab.on{display:block}
+.mu{color:var(--mu);font-size:13px}
+.done{text-decoration:line-through;opacity:.6}
+.circle{width:160px;height:160px;border-radius:50%;margin:16px auto;background:var(--ac);color:#fff;font-size:44px;display:flex;align-items:center;justify-content:center;border:0;cursor:pointer;user-select:none}
+</style>
+</head>
+<body>
+<header>🌙 سَكِينة<button id="themeBtn" onclick="cycleTheme()"></button></header>
+<main>
+
+<!-- الصلاة -->
+<section class="tab on" id="t-pray">
+  <div class="card"><div class="mu" id="city">جارٍ تحديد الموقع…</div>
+    <div class="mu" id="nextName"></div><div class="big" id="cd">--:--:--</div></div>
+  <div class="card" id="times"></div>
+  <div class="card">
+    <button class="b" onclick="askLoc()">📍 تحديث الموقع</button>
+    <button class="b" onclick="askNotif()">🔔 تفعيل الإشعارات</button>
+    <button class="b" onclick="playAdhan()">🔊 تجربة الأذان</button>
+    <p class="mu">ملف الأذان (يُحفظ على الجهاز ويعمل بدون نت، حتى 3 ميجا):</p>
+    <input type="file" accept="audio/*" id="adhanFile">
+    <p><label><input type="checkbox" id="optAdhan" checked> تشغيل الأذان عند الوقت</label><br>
+    <label><input type="checkbox" id="optZikr" checked> تذكير بأذكار الصباح والمساء</label></p>
+    <p class="mu">اترك الصفحة مفتوحة (أو ثبّتها كتطبيق) حتى يعمل التنبيه. الحساب يتم على الجهاز بالكامل بطريقة الهيئة المصرية.</p>
+  </div>
+</section>
+
+<!-- الأذكار -->
+<section class="tab" id="t-adhkar">
+  <div class="card"><button class="b" onclick="showZ('m')">☀️ الصباح</button>
+  <button class="b" onclick="showZ('e')">🌙 المساء</button>
+  <button class="b" onclick="showZ('d')">🤲 أدعية</button></div>
+  <div id="zlist"></div>
+</section>
+
+<!-- التسبيح -->
+<section class="tab" id="t-tasbeeh">
+  <div class="card" style="text-align:center">
+    <select id="tsel"><option>سبحان الله</option><option>الحمد لله</option><option>الله أكبر</option><option>لا إله إلا الله</option><option>أستغفر الله</option><option>اللهم صل على محمد</option></select>
+    <button class="circle" id="tbtn" onclick="tick()">0</button>
+    <button class="b" onclick="resetT()">تصفير</button>
+    <p class="mu" id="ttotal"></p>
+  </div>
+</section>
+
+<!-- المصحف -->
+<section class="tab" id="t-quran">
+  <div class="card">
+    <select id="surah" onchange="loadSurah()"></select>
+    <button class="b" onclick="listenSurah()">🎧 استماع</button>
+    <audio id="aud" controls style="width:100%;margin-top:10px;display:none"></audio>
+    <p class="mu" id="qmsg"></p>
+  </div>
+  <div class="card ayah" id="ayahs">اختر سورة للقراءة. (النص يُحفظ بعد أول تحميل للقراءة بدون ن
